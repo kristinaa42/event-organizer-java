@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">EventOrganizer</string>
+    <string name="name">Name</string>
+    <string name="event_name">Event Name</string>
+    <string name="date">Date</string>
+    <string name="string_date" />
+    <string name="location">Location</string>
+    <string name="time">Time</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="date">Date</string>
+</resources>
