@@ -2,11 +2,15 @@ package com.example.eventorganizer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +29,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.util.Arrays;
+import java.util.Calendar;
 
 
 public class AddNewEventActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -34,6 +39,34 @@ public class AddNewEventActivity extends AppCompatActivity implements OnMapReady
     private TextView tvDate2, tvTime2;
     private Button btnDate, btnTime, btnCancel, btnAdd;
     private GoogleMap gMap;
+    private EventItem event;
+
+    //date picker
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener{
+
+        private TextView tvDate2;
+
+        public void setView(TextView t){
+            this.tvDate2 = t;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState){
+            //use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            //create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day){
+            month++;
+            this.tvDate2.setText(day + "/" + month + "/" + year);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,9 +136,21 @@ public class AddNewEventActivity extends AppCompatActivity implements OnMapReady
         gMap = googleMap;
     }
 
+    public void chooseDate(View v) {
+        DatePickerFragment newFragment = new DatePickerFragment();
+        newFragment.setView(tvDate2);
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+    }
+
+    public void chooseTime(View v){
+
+    }
+
     public void add(View v){
         try{
-            //TODO create class Event, new instance here
+            event.setEventName(etEventName.getText().toString());
+            event.setEventDate(tvDate2.getText().toString());
+            event.setEventTime(tvTime2.getText().toString());
             Toast.makeText(AddNewEventActivity.this,"Uspesno dodat dogadjaj!", Toast.LENGTH_LONG).show();
 
         }catch (Exception e){
