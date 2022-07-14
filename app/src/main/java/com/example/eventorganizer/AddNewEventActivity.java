@@ -1,12 +1,14 @@
 package com.example.eventorganizer;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -19,15 +21,19 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
@@ -41,6 +47,7 @@ import java.util.Calendar;
 public class AddNewEventActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final String TAG = "TagToFilterTheLogcat";
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private EditText etEventName;
     private TextView tvDate2, tvTime2;
     private Button btnDate, btnTime, btnCancel, btnAdd;
@@ -106,6 +113,26 @@ public class AddNewEventActivity extends AppCompatActivity implements OnMapReady
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+            return;
+        }
+        Status status = Autocomplete.getStatusFromIntent(data);
+        Log.e("SomeTagToFilterTheLogc", status.toString());
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_event);
@@ -153,13 +180,18 @@ public class AddNewEventActivity extends AppCompatActivity implements OnMapReady
             //on place selected listener
         autocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                event.setLatitude(place.getLatLng().latitude);
+                event.setLongitude(place.getLatLng().longitude);
+
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + "latlong " + place.getLatLng());
+                LatLng marker = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
+                gMap.addMarker(new MarkerOptions().position(marker).title("Your event is here!"));
+                gMap.moveCamera(CameraUpdateFactory.newLatLng(marker));
+            }
+            @Override
             public void onError(@NonNull Status status) {
                 Log.i(TAG, "An error occured" + status);
-            }
-
-            @Override
-            public void onPlaceSelected(@NonNull Place place) {
-                    //TODO (first create class Event)
             }
         });
 

@@ -16,7 +16,8 @@
         android:theme="@style/Theme.EventOrganizer">
         <activity
             android:name=".AddNewEventActivity"
-            android:exported="true" />
+            android:exported="true" >
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -29,7 +30,8 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDt5hfGaoTlEnukGtB3ed-rFGUPKnVpuEg"
+            android:value="AIzaSyBDFA0j1-x8yntxE-U8VV9w4QOP9YCwd7I"
+
             />
     </application>
 
